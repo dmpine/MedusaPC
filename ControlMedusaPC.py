@@ -385,84 +385,6 @@ def IluminacionProgramada(puerto, Hi, Mi, Hf, Mf):
         switchLED(0, 0, False)
 ########################################################################
 
-# Función para realizar un PCA con las imágenes: #######################
-# def hacerPCA(STAT, CAM):
-#     STAT.set("Realizando PCA, por favor espere.")
-#     ventana.update()
-#     time.sleep(2)
-#     switchLED(0, 0, False) #Pongo todo en 0 antes de tomar las fotos
-#     # Arreglo de ceros vacío para guardar posteriormente las fotos
-#     IMGs = np.zeros((im_shape[0], im_shape[1], nbandas))
-#     ncomps = int(NCOMPONENTES.get())
-#     # Numeros de puertos
-#     puertosDisponibles2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-#     # Longitudes de onda disponibles
-#     LongOndaStr2 = ["419nm", "446nm", "470nm", "502nm", "533nm", "592nm",\
-#                    "632nm", "660nm", "723nm", "769nm", "858nm", "880nm",\
-#                    "950nm", "NOT"]
-#     for p, nomb in zip(puertosDisponibles2, LongOndaStr2):
-#         STAT.set("Capturando imagen a " + LongOndaStr[p] + ": " + str(p+1) + " de " + str(nbandas))
-#         ventana.update()
-#         luzYfoto(p, CAM, nomb, 0, False)
-#         IMGs[:,:,p] = dummyImg
-    
-#     # Proceso de PCA
-#     STAT.set("Procesando imágenes...")
-#     ventana.update()
-#     time.sleep(2)
-    
-#     # Convierto las matrices en vectores para facilitar los cálculos,
-#     # también se debe estandarizar todo
-#     IMG_matrix = np.zeros((IMGs[:,:,0].size,nbandas))
-#     for i in range(nbandas):
-#         IMG_array = IMGs[:,:,i].flatten()  # covertimos 2d a 1d
-#         IMG_arrayStd = (IMG_array - IMG_array.mean()) / IMG_array.std()
-#         IMG_matrix[:,i] = IMG_arrayStd
-#     IMG_matrix.shape;
-    
-#     # Se calculan los autovalores
-#     # Covariance
-#     np.set_printoptions(precision=3)
-#     cov = np.cov(IMG_matrix.transpose())# Eigen Values
-#     EigVal,EigVec = np.linalg.eig(cov)
-#     print("Autovalores:\n\n", EigVal,"\n")
-    
-#     # Se organizan los autovalores y autovectores
-#     order = EigVal.argsort()[::-1]
-#     EigVal = EigVal[order]
-#     # Se proyectan los datos en dirección de los autovectores resultando en la CP
-#     EigVec = EigVec[:,order]
-#     # Producto cruz (matricial)
-#     PC = np.matmul(IMG_matrix, EigVec)
-    
-#     # Pasamos de los CP a imágenes
-#     # Reorganizamos los arreglos 1-d a 2-d
-#     PC_2d = np.zeros((im_shape[0],im_shape[1],nbandas))
-#     for i in range(nbandas):
-#         PC_2d[:,:,i] = PC[:,i].reshape(-1, im_shape[1])# normalizing between 0 to 255
-#     PC_2d_Norm = np.zeros((im_shape[0], im_shape[1], nbandas))
-#     for i in range(nbandas):
-#         PC_2d_Norm[:,:,i] = cv2.normalize(PC_2d[:,:,i],
-#                         np.zeros(im_shape),0,255 ,cv2.NORM_MINMAX)
-        
-#     if(ncomps == 1):
-#         cv2.imwrite("PC1.png", PC_2d_Norm[:,:,0])
-#     elif(ncomps == 2):
-#         cv2.imwrite("PC1.png", PC_2d_Norm[:,:,0])
-#         cv2.imwrite("PC2.png", PC_2d_Norm[:,:,1])
-#     else:
-#         cv2.imwrite("PC1.png", PC_2d_Norm[:,:,0])
-#         cv2.imwrite("PC2.png", PC_2d_Norm[:,:,1])
-#         cv2.imwrite("PC3.png", PC_2d_Norm[:,:,2])
-        
-#     STAT.set("¡PCA realizado correctamente!")
-        
-    #cv2.imwrite("PC2.png", PC_2d_Norm[:,:,0])
-    #cv2.imwrite("PC3.png", PC_2d_Norm[:,:,0])
-    
-    #pass
-    #TODO
-########################################################################
 
 ############################# Fin Funciones ############################
 ########################################################################
@@ -679,28 +601,6 @@ frIlum_2.pack()
 frIlum_3.pack()
 frIlum_4.pack()
 frIlum.pack()
-###################################################################
-
-############################# frMultiVar ##############################
-# Widgets para configuración de cámara y puerto (frStat)
-# Variables para cámara y puerto de arduino
-# CAM = tk.StringVar()
-# Función asignada a btnConectar
-
-# lbNcomponentes = tk.Label(frMultiVar, text="No. de componentes por adquirir:").pack(side="left")
-# NCOMPONENTES = tk.StringVar()
-# compLIST = ["1", "2", "3"]
-# cmbNcomponentes = ttk.Combobox(frMultiVar, values=compLIST, textvariable=NCOMPONENTES, width=3).pack(side="left")
-# NCOMPONENTES.set(compLIST[0])
-# tk.Label(frMultiVar, text="  ").pack(side="left")
-# btnPCA = tk.Button(frMultiVar,
-#                   text="Realizar PCA",
-#                   command=partial(hacerPCA, STATUS, CAM),
-#                   bg="yellow",
-#                   fg="blue").pack(side="left")
-
-# # Agrego estos elementos al frame frMultiVar
-# frMultiVar.pack()
 ###################################################################
 
 ############################# frStat ##############################
