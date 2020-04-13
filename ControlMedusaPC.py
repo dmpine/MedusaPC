@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Programa de control Medusa
-Autor: Daniel Mauricio Pineda
+Autor: Daniel Mauricio Pineda Tobon
 Fecha de modificiación: 02032020
 Versión del código: 1.91
+Descripcion: Control de Medusa para SO Windows
 """
 
 # Librerías requeridas
