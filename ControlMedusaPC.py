@@ -12,19 +12,12 @@ import numpy as np
 import time, datetime, serial, cv2
 import tkinter as tk
 from functools import partial
-from tkinter import ttk
-
-import scipy
-import pandas as pd
-from sklearn.decomposition import PCA
-
 
 # Creo la ventana principal para iniciar la librería tk
 ventana = tk.Tk()
 ventana.title("MEDUSA G V1.91 (ALPHA) - Plantopía, UNAL")
 ventana.resizable(0, 0) # Para evitar que se pueda reescalar la ventana
 # Ajusto el tamaño de la ventana
-# ventana.geometry("470x365")
 ventana.geometry("470x355")
 
 ########################################################################
@@ -298,7 +291,6 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
                 IMG_matrix.shape;
                 
                 # Se calculan los autovalores
-                # Covariance
                 np.set_printoptions(precision=3)
                 cov = np.cov(IMG_matrix.transpose())# Eigen Values
                 EigVal,EigVec = np.linalg.eig(cov)
@@ -316,7 +308,7 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
                 # Reorganizamos los arreglos 1-d a 2-d
                 PC_2d = np.zeros((im_shape[0],im_shape[1],bd))
                 for i in range(bd):
-                    PC_2d[:,:,i] = PC[:,i].reshape(-1, im_shape[1])# normalizing between 0 to 255
+                    PC_2d[:,:,i] = PC[:,i].reshape(-1, im_shape[1])# Normalizacion de 0 a 255
                 PC_2d_Norm = np.zeros((im_shape[0], im_shape[1], bd))
                 for i in range(bd):
                     PC_2d_Norm[:,:,i] = cv2.normalize(PC_2d[:,:,i],
@@ -604,11 +596,7 @@ frIlum.pack()
 ###################################################################
 
 ############################# frStat ##############################
-# Widgets para configuración de cámara y puerto (frStat)
-# Variables para cámara y puerto de arduino
-# CAM = tk.StringVar()
-# Función asignada a btnConectar
-
+# Widgets para mostrar barra de estado
 lbStat = tk.Label(frStat, 
                   textvariable=STATUS,
                   bg="grey",
