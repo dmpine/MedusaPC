@@ -2,23 +2,23 @@
 """
 Programa de control Medusa
 Autor: Daniel Mauricio Pineda Tobon
-Fecha de modificiación: 02032020
+Fecha de modificiacion: 13042020
 Versión del código: 1.91
-Descripcion: Control de Medusa para SO Windows
+Descripcion: Control de camara multiespectral Medusa para PC
 """
 
 # Librerías requeridas
 import numpy as np
-import time, datetime, serial, cv2
+import time, serial, cv2
 import tkinter as tk
 from functools import partial
 
 # Creo la ventana principal para iniciar la librería tk
 ventana = tk.Tk()
-ventana.title("MEDUSA G V1.91 (ALPHA) - Plantopía, UNAL")
+ventana.title("MEDUSA G V1.91 (BETA) - Plantopía, UNAL")
 ventana.resizable(0, 0) # Para evitar que se pueda reescalar la ventana
 # Ajusto el tamaño de la ventana
-ventana.geometry("470x355")
+ventana.geometry("470x195")
 
 ########################################################################
 ###################### Variables globales importantes ##################
@@ -361,23 +361,6 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
         INIT.set("INICIAR")
 ########################################################################
 
-# Función para realizar iluminación programada: ########################
-def IluminacionProgramada(puerto, Hi, Mi, Hf, Mf):
-    tiempo = datetime.datetime.now()
-    hora = tiempo.hour
-    minuto = tiempo.minut
-    switchLED(puerto, 1, True)
-    # Para manipular con comodidad el tiempo 
-    tActual = hora * 60 + minuto
-    tInicial = Hi * 60 + Mi
-    tFinal = Hf * 60 + ModuleNotFoundError
-    if tInicial < tActual & tActual < tFinal:
-        switchLED(puerto, 1, True)
-    else:
-        switchLED(0, 0, False)
-########################################################################
-
-
 ############################# Fin Funciones ############################
 ########################################################################
 
@@ -400,16 +383,7 @@ frCap = tk.Frame(ventana,
                  highlightcolor="black",
                  highlightthickness=1,
                  bd=5)
-frIlum = tk.Frame(ventana,
-                  highlightbackground="black",
-                  highlightcolor="black",
-                  highlightthickness=1,
-                  bd=5)
-# frMultiVar = tk.Frame(ventana,
-#                   highlightbackground="black",
-#                   highlightcolor="black",
-#                   highlightthickness=1,
-#                   bd=5)
+
 # Para actualizar la barra de estado
 STATUS = tk.StringVar()
 frStat = tk.Frame(ventana)
@@ -533,66 +507,6 @@ frCap_2.pack()
 frCap_3.pack()
 #frCap_4.pack()
 frCap.pack()
-###################################################################
-
-############################# frIlum ###############################
-# Widgets para configuración de cámara y puerto (frIlum)
-# Tenemos varios subframes
-frIlum_1 = tk.Frame(frIlum)
-frIlum_2 = tk.Frame(frIlum)
-frIlum_3 = tk.Frame(frIlum)
-frIlum_4 = tk.Frame(frIlum)
-# En cada subframe organizo distintos widgets
-
-# Opción para activar o no la iluminación programada
-tk.Checkbutton(frIlum_1, text="¿Activar iluminación programada?", variable=activado).pack()
-
-# Hora inicial
-lbHorai = tk.Label(frIlum_2, text="Hora inicial").pack(side="left")
-txtHorai = tk.Entry(frIlum_2, textvariable=Hi, width=4).pack(side="left")
-tk.Label(frIlum_2, text=":").pack(side="left")
-txtMini = tk.Entry(frIlum_2, textvariable=Mi, width=4).pack(side="left")
-# Hora final
-tk.Label(frIlum_2, text="          ").pack(side="left")
-lbHoraf = tk.Label(frIlum_2, text="Hora final").pack(side="left")
-txtHoraf = tk.Entry(frIlum_2, textvariable=Hf, width=4).pack(side="left")
-tk.Label(frIlum_2, text=":").pack(side="left")
-txtMinf = tk.Entry(frIlum_2, textvariable=Mf, width=4).pack(side="left")
-
-btnSelect = tk.Button(frIlum_3, text="Seleccionar todas", command=partial(todoNada, iLongOnda, True)).pack(side="left")
-tk.Label(frIlum_3, text="      ").pack(side="left")
-btnDeselect = tk.Button(frIlum_3, text="Deseleccionar todas", command=partial(todoNada, iLongOnda, False)).pack(side="left")
-
-# Ubico todos los botones de checkeo de cada banda:
-for i in range(5):
-    tk.Checkbutton(frIlum_4, 
-                   text=LongOndaStr[i], 
-                   variable=iLongOnda[i]
-                   ).grid(row=1, column=i)
-for i in range(5):
-    tk.Checkbutton(frIlum_4, 
-                   text=LongOndaStr[i+5], 
-                   variable=iLongOnda[i+5]
-                   ).grid(row=2, column=i)
-for i in range(5):
-    tk.Checkbutton(frIlum_4, 
-                   text=LongOndaStr[i+5+5], 
-                   variable=iLongOnda[i+5+5]
-                   ).grid(row=3, column=i)
-
-
-# Agrego los valores por defecto de los txt
-Hi.set(6)
-Mi.set(0)
-Hf.set(18)
-Mf.set(0)
-
-# Agrego estos subframes al frame principal
-frIlum_1.pack()
-frIlum_2.pack()
-frIlum_3.pack()
-frIlum_4.pack()
-frIlum.pack()
 ###################################################################
 
 ############################# frStat ##############################
