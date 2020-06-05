@@ -20,6 +20,7 @@ ventana.resizable(0, 0) # Para evitar que se pueda reescalar la ventana
 # Ajusto el tamaño de la ventana
 ventana.geometry("470x195")
 
+
 ########################################################################
 ###################### Variables globales importantes ##################
 # Resolución de la cámara
@@ -31,7 +32,7 @@ puertosDisponibles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 # Longitudes de onda disponibles
 LongOndaStr = ["419nm", "446nm", "470nm", "502nm", "533nm", "592nm",\
                "632nm", "660nm", "723nm", "769nm", "858nm", "880nm",\
-                   "950nm", "NOT", "BLA"]
+                   "950nm", "NOT", "WHT"]
 blanco = 14
 ser = 0
 im_shape = (resY, resX)
@@ -115,21 +116,21 @@ def switchLED(LED, opcion, permanente):
 # Función para conectar/desconectar el puerto serial: ##################
 def Conectar(CON, COM, STAT):
     global ser
-    if CON.get() == "Conectar":
+    if CON.get() == "Connect":
         ser = serial.Serial(COM.get(), 9600, timeout=0)
-        STAT.set("Arduino conectado")
-        CON.set("Desconectar")
+        STAT.set("Arduino connected")
+        CON.set("Disconnect")
         #print(ser)
-    elif CON.get() == "Desconectar":
+    elif CON.get() == "Disconnect":
         #serial.Serial(COM.get()).close()}
         ser.close()
-        STAT.set("Arduino desconectado")
-        CON.set("Conectar")
+        STAT.set("Arduino disconnected")
+        CON.set("Connect")
 ########################################################################
         
 # Función para realizar vista previa de la cámara: #####################
 def vistaPrevia(STAT):
-    STAT.set("Vista previa en proceso...")
+    STAT.set("Preview in process...")
     switchLED(0, 0, False) # Apago todos los LEDs inicialmente
     switchLED(blanco, 1, False) # Activo el LED blanco
     time.sleep(0.5)
@@ -142,7 +143,7 @@ def vistaPrevia(STAT):
     while(True):
         # Capturo un cuadro                
         retval, cuadro = cap.read()
-        cv2.imshow("Medusa", cuadro)
+        cv2.imshow("MEDUSA", cuadro)
         # En caso de que la cámara por alguna razón no funcione
         # o se desconecte inesperadamente, cierro el programa:
         if not retval:
@@ -151,11 +152,11 @@ def vistaPrevia(STAT):
 
         if k%256 == 27:
             #print("Cancelado...")
-            STATUS.set("Vista previa finalizada.")
+            STATUS.set("Preview terminated.")
             break
         elif k%256 == 32:                    
             #print("Imagen capturada\r\n")
-            STATUS.set(str("Imagen " + str(contadorTest) + " capturada"))
+            STATUS.set(str("Image " + str(contadorTest) + " captured"))
             cv2.imwrite("Test" + str(contadorTest) + ".jpg", cuadro)
             contadorTest += 1
             time.sleep(1)
@@ -234,11 +235,11 @@ def luzYfoto(LED, CAM, nombre, numero, color):
 
 # Función combinada para iluminar y tomar fotos: #######################
 def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
-    if INIT.get() == "INICIAR":
+    if INIT.get() == "BEGIN":
         # Envío un mensaje a la barra de estado
-        STAT.set("Iniciando toma de conjuntos...")
+        STAT.set("Capturing image sets...")
         # Actualizo el nombre del botón
-        INIT.set("DETENER")
+        INIT.set("STOP")
         ventana.update()
         time.sleep(1.5)
         # Se deben apagar todos los LEDs
@@ -257,7 +258,7 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
         delay = 0
         step = 0.25
         for n in range(conjTot):
-            STAT.set("Capturando imágenes, por favor espere.")
+            STAT.set("Capturing images, please wait.")
             ventana.update()
             switchLED(0, 0, False) #Pongo todo en 0 antes de tomar las fotos
             # Verifico si se consideró el blanco
@@ -268,7 +269,7 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
             lenPuertos = len(Puertos)
             IMGs = np.zeros((im_shape[0], im_shape[1], bd))
             for p, nomb, j, num in zip(Puertos, NombresFotos, range(bd+1), range(lenPuertos)):
-                STAT.set("Capturando imágenes, por favor espere: " + LongOndaStr[p] + " (" + str(num+1) + " de " + str(lenPuertos) + ")")
+                STAT.set("Capturing images, please wait: " + LongOndaStr[p] + " (" + str(num+1) + " of " + str(lenPuertos) + ")")
                 ventana.update()
                 if p == blanco:
                     luzYfoto(p, CAM, nomb, n, True)
@@ -278,7 +279,7 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
             if(TIMELAPSEPCA.get() == 1):
                 ################# FUNCIÓN PCA ############################
                 # Proceso de PCA
-                STAT.set("Procesando imágenes para PCA...")
+                STAT.set("Processing images for PCA...")
                 ventana.update()
                 time.sleep(1)
                 # Convierto las matrices en vectores para facilitar los cálculos,
@@ -294,7 +295,7 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
                 np.set_printoptions(precision=3)
                 cov = np.cov(IMG_matrix.transpose())# Eigen Values
                 EigVal,EigVec = np.linalg.eig(cov)
-                print("Autovalores:\n\n", EigVal,"\n")
+                #print("Autovalues:\n\n", EigVal,"\n")
                 
                 # Se organizan los autovalores y autovectores
                 order = EigVal.argsort()[::-1]
@@ -318,34 +319,26 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
                 cv2.imwrite(str(n) + "_PC2.png", PC_2d_Norm[:,:,1])
                 cv2.imwrite(str(n) + "_PC3.png", PC_2d_Norm[:,:,2])
                     
-                STAT.set("¡PCA realizado correctamente!")
+                STAT.set("¡PCA finished successfully!")
                     ##########################################################
                 pass
             
-            #TODO: Iluminación programada
-            if n != conjTot:
-                if activado.get() == 1:
-                    LEDi = []
-                    pui = []
-                    for LEDi, pui in zip(iLongOnda, puertosDisponibles):
-                        if LEDi.get() == 1:
-                            IluminacionProgramada(pui, Hi.get(), Mi.get(), Hf.get(), Mf.get())
             
             # Para mostrar el progreso en la barra de estado
             while delay < delayTot:
                 if n >= conjTot - 1:
                     break
-                elif INIT.get() == "INICIAR":
+                elif INIT.get() == "BEGIN":
                     n = conjTot
                     switchLED(0, 0, False)
                     break
                 time.sleep(step)
                 delay = delay + step       
                 porc = 100 * (n+1) / conjTot
-                STAT.set("Progreso: " + str(n+1) + " conjuntos de " + NCONJ.get() + " -> " + str(porc) + "%" )
+                STAT.set("Progress: " + str(n+1) + " of " + NCONJ.get() + " sets -> " + str(porc) + "%" )
                 ventana.update()
             delay = 0
-            if INIT.get() == "INICIAR":
+            if INIT.get() == "BEGIN":
                 n = conjTot
                 switchLED(0, 0, False)
                 break
@@ -353,12 +346,12 @@ def tomarConjuntos(CAM, NCONJ, TCONJ, INIT, STAT, activado):
         # Apago todo de nuevo una vez completado el ciclo
         switchLED(0, 0, False)
         # Actualizo el nombre del botón
-        INIT.set("INICIAR")
-        STAT.set("Toma de conjuntos finalizada!")
+        INIT.set("BEGIN")
+        STAT.set("Sets have been captured successfully!")
     else:
         #STAT.set("Toma de conjuntos cancelada...")
         #switchLED(0, 0, False)
-        INIT.set("INICIAR")
+        INIT.set("BEGIN")
 ########################################################################
 
 ############################# Fin Funciones ############################
@@ -400,9 +393,9 @@ CAM = tk.StringVar()
 COM = tk.StringVar()
 CON = tk.StringVar()
 
-lbCamara = tk.Label(frConf, text="P. cámara: ").pack(side="left")
+lbCamara = tk.Label(frConf, text="Cam. Port: ").pack(side="left")
 txtCamara = tk.Entry(frConf, width=8, textvariable=CAM).pack(side="left")
-lbPuerto = tk.Label(frConf, text=" P. Arduino: ").pack(side="left")
+lbPuerto = tk.Label(frConf, text=" Ardu. Port: ").pack(side="left")
 txtPuerto = tk.Entry(frConf, width=8, textvariable=COM).pack(side="left")
 tk.Label(frConf, text=" ").pack(side="left")
 btnConectar = tk.Button(frConf, 
@@ -413,7 +406,7 @@ btnConectar = tk.Button(frConf,
                         ).pack(side="left")
 tk.Label(frConf, text=" -->").pack(side="left")
 btnPrev = tk.Button(frConf, 
-                    text="Vista previa",
+                    text="Preview",
                     bg="green",
                     fg="white",
                     command=partial(vistaPrevia, STATUS)
@@ -422,7 +415,7 @@ tk.Label(frConf, text="<-- ").pack(side="left")
 # Agrego los valores por defecto de los txt
 CAM.set("0")
 COM.set("COM0")
-CON.set("Conectar")
+CON.set("Connect")
 # Agrego estos elementos al frame frConf
 frConf.pack()
 ###################################################################
@@ -433,16 +426,15 @@ frConf.pack()
 frCap_1 = tk.Frame(frCap)
 frCap_2 = tk.Frame(frCap)
 frCap_3 = tk.Frame(frCap)
-frCap_4 = tk.Frame(frCap)
 # En cada subframe organizo distintos widgets
 
-btnSelect = tk.Button(frCap_1, text="Seleccionar todas", command=partial(todoNada, LongOnda, True)).pack(side="left")
+btnSelect = tk.Button(frCap_1, text="Check all", command=partial(todoNada, LongOnda, True)).pack(side="left")
 tk.Label(frCap_1, text="   ").pack(side="left")
-btnDeselect = tk.Button(frCap_1, text="Deseleccionar todas", command=partial(todoNada, LongOnda, False)).pack(side="left")
+btnDeselect = tk.Button(frCap_1, text="Uncheck all", command=partial(todoNada, LongOnda, False)).pack(side="left")
 TIMELAPSEPCA = tk.IntVar()
 TIMELAPSEPCA.set(0)
 tk.Label(frCap_1, text=" ---- ").pack(side="left")
-chkTimelapsePCA = tk.Checkbutton(frCap_1, text="¿Realizar PCA por conjunto?", variable=TIMELAPSEPCA).pack(side="left")
+chkTimelapsePCA = tk.Checkbutton(frCap_1, text="¿Do a PCA per set?", variable=TIMELAPSEPCA).pack(side="left")
 
 
 # Ubico todos los botones de checkeo de cada banda:
@@ -466,9 +458,9 @@ for i in range(5):
 NCONJ = tk.StringVar()
 TCONJ = tk.StringVar()
 INIT = tk.StringVar()
-lbNconj = tk.Label(frCap_3, text="No. Conjuntos ").pack(side="left")
+lbNconj = tk.Label(frCap_3, text="No. of sets ").pack(side="left")
 txtNconj = tk.Entry(frCap_3, textvariable=NCONJ, width=6).pack(side="left")
-lbTconj = tk.Label(frCap_3, text="Intervalo (s) ").pack(side="left")
+lbTconj = tk.Label(frCap_3, text="Interval (s) ").pack(side="left")
 txtTconj = tk.Entry(frCap_3, textvariable=TCONJ, width=6).pack(side="left")
 tk.Label(frCap_3, text=" ------->").pack(side="left")
 btnIniciar = tk.Button(frCap_3, 
@@ -481,31 +473,12 @@ tk.Label(frCap_3, text="<-------").pack(side="left")
 # Agrego los valores por defecto de los txt
 NCONJ.set("1")
 TCONJ.set("0")
-INIT.set("INICIAR")
-
-# Opciones para recortar la imagen
-RECORTAR = tk.IntVar()
-RECORTAR.set(0)
-chkRecortar = tk.Checkbutton(frCap_4, text="¿Recortar imagen?", variable=RECORTAR).pack(side="left")
-RADIORECORTE = tk.StringVar()
-RADIORECORTE.set("300")
-tk.Label(frCap_4, text=" -- Radio de recorte (px): ").pack(side="left")
-txtRecortar = tk.Entry(frCap_4, textvariable = RADIORECORTE, width=5).pack(side="left")
-tk.Label(frCap_4, text="Posición: (").pack(side="left")
-POSRECORTEX = tk.StringVar()
-POSRECORTEX.set("400")
-POSRECORTEY = tk.StringVar()
-POSRECORTEY.set("200")
-txtPOSX = tk.Entry(frCap_4, textvariable=POSRECORTEX, width=5).pack(side="left")
-tk.Label(frCap_4, text=",").pack(side="left")
-txtPOSY = tk.Entry(frCap_4, textvariable=POSRECORTEY, width=5).pack(side="left")
-tk.Label(frCap_4, text=")").pack(side="left")
+INIT.set("BEGIN")
 
 # Agrego estos subframes al frame principal
 frCap_1.pack()
 frCap_2.pack()
 frCap_3.pack()
-#frCap_4.pack()
 frCap.pack()
 ###################################################################
 
@@ -517,7 +490,7 @@ lbStat = tk.Label(frStat,
                   width=350).pack(side="left")
 
 # Agrego los valores por defecto de los txt
-STATUS.set("ADVERTENCIA: Arduino no conectado")
+STATUS.set("WARNING: Arduino not connected")
 
 # Agrego estos elementos al frame frConf
 frStat.pack(side="left")
