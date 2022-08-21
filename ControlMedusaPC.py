@@ -26,6 +26,7 @@ ventana.geometry("470x195")
 # Resolución de la cámara
 resX = 1280
 resY = 720
+cap = 0
 nbandas = 14 # No se tendrá en cuenta la blanca
 # Numeros de puertos
 puertosDisponibles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
@@ -114,17 +115,29 @@ def switchLED(LED, opcion, permanente):
 ########################################################################
 
 # Función para conectar/desconectar el puerto serial: ##################
-def Conectar(CON, COM, STAT):
+# También para configurar la camara con setCamera
+def setCamera(CAM, resX, resY):
+    global cap
+    cap = cv2.VideoCapture(CAM,cv2.CAP_DSHOW)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
+    pass
+
+
+def Conectar(CON, COM, CAM, resX, resY, STAT):
     global ser
+    setCamera(int(CAM.get()), resX, resY)
+    #global cap
     if CON.get() == "Connect":
         ser = serial.Serial(COM.get(), 9600, timeout=0)
-        STAT.set("Arduino connected")
+        STAT.set("Arduino and camera connected")
         CON.set("Disconnect")
         #print(ser)
     elif CON.get() == "Disconnect":
         #serial.Serial(COM.get()).close()}
         ser.close()
-        STAT.set("Arduino disconnected")
+        cap.release()
+        STAT.set("Arduino and camera disconnected")
         CON.set("Connect")
 ########################################################################
         
@@ -135,10 +148,11 @@ def vistaPrevia(STAT):
     switchLED(blanco, 1, False) # Activo el LED blanco
     time.sleep(0.5)
     # Selecciono la cámara de interés
-    cap = cv2.VideoCapture(int(CAM.get()))
+    #cap = cv2.VideoCapture(int(CAM.get()))
+    #cap = cv2.VideoCapture(int(CAM.get()),cv2.CAP_DSHOW)
     # Ajusto la resolución
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
+    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
+    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
     contadorTest = 0
     while(True):
         # Capturo un cuadro                
@@ -161,7 +175,7 @@ def vistaPrevia(STAT):
             contadorTest += 1
             time.sleep(1)
     switchLED(0, 0, False) # Apago todos los LEDs
-    cap.release()
+    #cap.release()
     cv2.destroyAllWindows()
 ########################################################################
 
@@ -178,17 +192,17 @@ def todoNada(bandas, incluir):
 # Función para tomar fotos: ############################################
 def tomarFoto(CAM, nombre, numero, color, imRef):
     # Activo la cámara
-    cap = cv2.VideoCapture(int(CAM.get()))
+    #cap = cv2.VideoCapture(int(CAM.get()),cv2.CAP_DSHOW)
     # Ajusto la resolución
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
+    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
+    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
     # Capturo varios cuadros
     nc = 0
     while(nc < 10):
         nc = nc + 1
         retval, cuadro = cap.read()
         time.sleep(0.1)
-    cap.release()
+    #cap.release()
     if color == False:
         # Convierto las imagenes en bn
         grisRef = cv2.cvtColor(imRef, cv2.COLOR_BGR2GRAY)
@@ -213,17 +227,17 @@ def luzYfoto(LED, CAM, nombre, numero, color):
     switchLED(0, 0, False)
     # Se captura una imagen de referencia con las luces apagadas
     # Activo la cámara
-    cap = cv2.VideoCapture(int(CAM.get()))
+    #cap = cv2.VideoCapture(int(CAM.get()),cv2.CAP_DSHOW)
     # Ajusto la resolución
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
+    #cap.set(cv2.CAP_PROP_FRAME_WIDTH, resX)
+    #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resY)
     # Capturo varios cuadros
     nc = 0
     while(nc < 10):
         nc = nc + 1
         retval, imRef = cap.read()
         time.sleep(0.1)
-    cap.release()
+    #cap.release()
 
     # Se enciende la luz correspondiente y se toma la imagen
     switchLED(LED, 1, False)
@@ -402,7 +416,7 @@ btnConectar = tk.Button(frConf,
                         textvariable=CON, 
                         bg="blue", 
                         fg="white",
-                        command=partial(Conectar, CON, COM, STATUS)
+                        command=partial(Conectar, CON, COM, CAM, resX, resY, STATUS)
                         ).pack(side="left")
 tk.Label(frConf, text=" -->").pack(side="left")
 btnPrev = tk.Button(frConf, 
@@ -498,8 +512,3 @@ frStat.pack(side="left")
 
 # Inicio la ventana
 ventana.mainloop()
-
-
-
-
-
